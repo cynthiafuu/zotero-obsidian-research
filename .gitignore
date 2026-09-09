@@ -1,0 +1,5 @@
+*.json
+*.bib
+exports/
+__pycache__/
+.DS_Store
