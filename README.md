@@ -96,9 +96,7 @@ yourself: no bare purple highlights.
   duplicate or overwrite anything)
 - `export_purple.py`: color filtering, and the two-level
   annotation → attachment → parent-item resolution
-- `verify_setup.py`: 14 of 15 checks passing against that 673-item library
-  (the one failure is a known template/field mismatch from an in-progress
-  frontmatter redesign, not a bug in the script)
+- `verify_setup.py`: 15 of 15 checks passing against that 673-item library
 
 **Not verified**:
 

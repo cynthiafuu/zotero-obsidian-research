@@ -84,9 +84,9 @@ def parse_fm(fm_lines):
     return out
 
 
-FIELDS = ["citekey", "title", "authors", "year", "journal", "draft_date",
-          "pub_status", "status", "topic", "setting", "data", "method",
-          "identification", "measure", "finding", "gap", "rating", "added"]
+FIELDS = ["citekey", "draft_date", "pub_status", "status", "topic", "setting",
+          "data", "method", "identification", "measure", "finding", "gap",
+          "rating", "added"]
 
 
 # ------------------------------------------------------------------ 1. 连通
