@@ -2,8 +2,8 @@
 """
 verify_setup.py — 在你的真实库上验证另外两个脚本的每一条假设。
 
-它不是重新实现一遍逻辑，而是 import export_purple 和 fill_frontmatter，
-调用它们**真实的函数**，喂你**真实的数据**，逐条报告 PASS / FAIL。
+它不是重新实现一遍逻辑，而是 import export_purple，
+调用它**真实的函数**，喂你**真实的数据**，逐条报告 PASS / FAIL。
 
 全程只读：
   · 不调用任何 Zotero 写接口
@@ -16,6 +16,7 @@ verify_setup.py — 在你的真实库上验证另外两个脚本的每一条假
 """
 
 import json
+import re
 import sys
 import time
 import urllib.error
@@ -56,12 +57,36 @@ def raw_get(path, timeout=30):
 head(0, "载入待验证的脚本")
 try:
     import export_purple as ep
-    import fill_frontmatter as ff
-    check("import export_purple / fill_frontmatter", True)
+    check("import export_purple", True)
 except Exception as e:
     check("import", False, e)
-    print("\n两个脚本不在同一目录，或有语法错误。停止。")
+    print("\nexport_purple.py 不在同一目录，或有语法错误。停止。")
     sys.exit(1)
+
+
+# 自带的 frontmatter 解析（不再依赖外部脚本）
+def split_fm(text):
+    lines = text.split("\n")
+    if not lines or lines[0].strip() != "---":
+        return None
+    for i in range(1, len(lines)):
+        if lines[i].strip() == "---":
+            return lines[1:i], lines[i + 1:], 1
+    return None
+
+
+def parse_fm(fm_lines):
+    out = {}
+    for idx, ln in enumerate(fm_lines):
+        m = re.match(r"^([A-Za-z_][A-Za-z0-9_-]*):(.*)$", ln)
+        if m:
+            out[m.group(1)] = (idx, m.group(2).strip())
+    return out
+
+
+FIELDS = ["citekey", "title", "authors", "year", "journal", "draft_date",
+          "pub_status", "status", "topic", "setting", "data", "method",
+          "identification", "measure", "finding", "gap", "rating", "added"]
 
 
 # ------------------------------------------------------------------ 1. 连通
@@ -118,11 +143,6 @@ check("export_purple.citekey_of 能取到 citekey",
       len(with_ck) > 0,
       f"{len(with_ck)} / {len(tops)} 个顶层条目有 citekey")
 
-ff_ok = sum(1 for d in [i["data"] for i in tops] if ff.citekey_of(d))
-check("fill_frontmatter.citekey_of 结果一致",
-      ff_ok == len(with_ck),
-      f"{ff_ok} vs {len(with_ck)}")
-
 if without_ck:
     print(f"           ⚠ {len(without_ck)} 条没有 citekey，前 3 个：")
     for d in without_ck[:3]:
@@ -173,65 +193,20 @@ check(f"紫色常量 {ep.PURPLE} 与库中一致",
       else "库里还没有紫色标注 —— 标一条再跑本脚本，这条才有意义")
 
 
-# ------------------------------------------------------------------ 5. 年份
-head(5, "日期解析（你的库里格式很杂：1/1998、04/2004、1996-3-29）")
-dated = [d for d in [i["data"] for i in tops] if d.get("date")]
-got = miss = 0
-samples = []
-for d in dated:
-    f = ff.facts_from(d)
-    if f.get("year"):
-        got += 1
-        if len(samples) < 6:
-            samples.append(f"{d['date']!r:16} → {f['year']}")
-    else:
-        miss += 1
-        if len(samples) < 6:
-            samples.append(f"{d['date']!r:16} → 抽不出年份 ⚠")
-
-check("能从 date 抽出年份", miss == 0,
-      f"{got} 成功 / {miss} 失败\n" + "\n".join(samples))
-
-
-# ------------------------------------------------------------------ 6. facts
-head(6, "facts_from() 在真实条目上的产出")
-shown = 0
-for d in [i["data"] for i in tops]:
-    if shown >= 3:
-        break
-    f = ff.facts_from(d)
-    if len(f) >= 3:
-        shown += 1
-        print(f"\n  {ff.citekey_of(d)}")
-        for k, v in f.items():
-            print(f"    {k:12} = {str(v)[:58]}")
-check("facts_from 能产出多字段结果", shown > 0, f"{shown} 个样本")
-
-pubs = {}
-for d in [i["data"] for i in tops]:
-    f = ff.facts_from(d)
-    if f.get("pub_status"):
-        pubs[f["pub_status"]] = pubs.get(f["pub_status"], 0) + 1
-print(f"\n           pub_status 分布：{pubs}")
-
-
 # ------------------------------------------------------------------ 7. 模板
-head(7, "frontmatter 解析器 vs 你实际的模板文件")
+head(5, "模板文件的 frontmatter")
 tpl = HERE.parent / "templates" / "lit-note.md"
 if tpl.exists():
     text = tpl.read_text(encoding="utf-8")
-    parts = ff.split_fm(text)
+    parts = split_fm(text)
     check("能识别模板的 frontmatter", parts is not None)
     if parts:
         fm, body, off = parts
-        fields = ff.parse_fm(fm)
-        need = ff.FACT_FIELDS + ff.LLM_FIELDS
+        fields = parse_fm(fm)
+        need = FIELDS
         missing = [k for k in need if k not in fields]
         check("模板含有全部待填字段", not missing,
               f"缺：{missing}" if missing else f"{len(fields)} 个字段")
-        empt = [k for k in need if k in fields and ff.is_empty(fields[k][1])]
-        check("这些字段当前是空的（能被填）", len(empt) >= len(need) - 1,
-              f"空字段 {len(empt)}/{len(need)}")
         if "{{VALUE:citekey}}" in text and "{{DATE:" in text:
             check("QuickAdd 占位符完好", True)
         else:
@@ -241,21 +216,21 @@ else:
 
 
 # ------------------------------------------------------------------ 8. 笔记
-head(8, "10-Literature 里已有的笔记")
+head(6, "10-Literature 里已有的笔记")
 lit = HERE.parent.parent / "10-Literature"
 notes = sorted(lit.glob("*.md")) if lit.is_dir() else []
 print(f"           {len(notes)} 个笔记文件")
 
 if notes:
-    idx = {ff.citekey_of(i["data"]): i["data"] for i in tops
-           if ff.citekey_of(i["data"])}
+    idx = {ep.citekey_of(i["data"]): i["data"] for i in tops
+           if ep.citekey_of(i["data"])}
     matched, unmatched = 0, []
     for n in notes:
-        p = ff.split_fm(n.read_text(encoding="utf-8"))
+        p = split_fm(n.read_text(encoding="utf-8"))
         if not p:
             unmatched.append(f"{n.name}（没有 frontmatter）")
             continue
-        f = ff.parse_fm(p[0])
+        f = parse_fm(p[0])
         ck = f.get("citekey", (0, ""))[1].strip().strip("\"'") or n.stem
         if ck in idx:
             matched += 1
