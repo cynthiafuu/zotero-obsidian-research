@@ -75,8 +75,8 @@ yourself: no bare purple highlights.
    python3 verify_setup.py
    ```
    This is read-only — it imports and exercises the real functions in
-   `export_purple.py` and `fill_frontmatter.py` against your actual Zotero
-   data, but never writes anything.
+   `export_purple.py` against your actual Zotero data, but never writes
+   anything.
 
 ## Scripts
 
@@ -85,8 +85,7 @@ yourself: no bare purple highlights.
 | `setup_vault.sh` | Creates the vault folder structure, templates, prompts, and copies the scripts in. Idempotent. | No — doesn't touch Zotero at all |
 | `scripts/zotero_probe.py` | Probes the local API to confirm field names, color codes, and date formats before you rely on them. | No, read-only |
 | `scripts/export_purple.py` | Exports all highlights of a given color (default purple), grouped by paper, to markdown. | No, read-only |
-| `scripts/fill_frontmatter.py` | Fills empty frontmatter fields in `10-Literature/` notes: factual fields straight from Zotero, judgment fields optionally via a local LLM (prefixed `?` for you to confirm). Dry-run by default; `--apply` required to write, and only into empty fields. | No, read-only against Zotero; writes into vault notes only with `--apply` |
-| `scripts/verify_setup.py` | Runs the real functions from the two scripts above against your live library and reports pass/fail per assumption. | No, fully read-only, writes nothing anywhere |
+| `scripts/verify_setup.py` | Runs the real functions from `export_purple.py` against your live library and reports pass/fail per assumption. | No, fully read-only, writes nothing anywhere |
 | `scripts/backup_zotero.sh` | Tars up `~/Zotero` after checking Zotero is closed (a backup taken while it's running can be silently corrupt), warns if the output looks too small, and prunes backups older than 90 days (keeps the last 3). | Reads `~/Zotero`, never writes into it; writes the archive elsewhere |
 
 ## Verified / not verified
@@ -95,16 +94,14 @@ yourself: no bare purple highlights.
 
 - `setup_vault.sh` end-to-end and idempotent (running it twice does not
   duplicate or overwrite anything)
-- `fill_frontmatter.py`: leaves the note body untouched, never overwrites a
-  field that already has a value, and is idempotent
 - `export_purple.py`: color filtering, and the two-level
   annotation → attachment → parent-item resolution
-- `verify_setup.py`: 18/18 checks passing against that 673-item library
+- `verify_setup.py`: 14 of 15 checks passing against that 673-item library
+  (the one failure is a known template/field mismatch from an in-progress
+  frontmatter redesign, not a bug in the script)
 
 **Not verified**:
 
-- `fill_frontmatter.py --llm` (the local-LLM path via Ollama) — not
-  exercised beyond a couple of manual runs
 - Zotero 10 compatibility — as of this writing, Better BibTeX (up to v9.0.63)
   still only declares support for Zotero 8 / 9 beta, so this hasn't been
   tried against Zotero 10 at all

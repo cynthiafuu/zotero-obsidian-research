@@ -1,9 +1,5 @@
 ---
 citekey: {{VALUE:citekey}}
-title: 
-authors: 
-year: 
-journal: 
 draft_date: 
 pub_status: wp
 status: skim
@@ -19,7 +15,8 @@ rating:
 added: {{DATE:YYYY-MM-DD}}
 ---
 
-> Source item and all annotations: [[@{{VALUE:citekey}}]]
+> [!info] Source
+> [[@{{VALUE:citekey}}]] · [[@{{VALUE:citekey}}#My doubts|doubts]] · [[@{{VALUE:citekey}}#Key findings|findings]] · [[@{{VALUE:citekey}}#Identification|identification]] · [[@{{VALUE:citekey}}#Reusable methods|methods]]
 
 ## What convinced me
 
@@ -32,12 +29,9 @@ added: {{DATE:YYYY-MM-DD}}
 
 
 ## Status log
-<!-- dated entries only when something changes:
-     2026-09-10 read as WP (draft 2024-01-30)
-     2026-09-10 retracted — not reproducible -->
 
 
 ## Links
-- method: 
+- concept: 
 - supports / contradicts: 
 - stream: 
