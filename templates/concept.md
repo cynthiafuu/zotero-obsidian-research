@@ -1,16 +1,16 @@
-# {{VALUE:概念名}}
+# {{VALUE:concept}}
 
-## 是什么
-
-
-## 什么时候用 / 什么时候不能用
+## What it is
 
 
-## 常见做法与各自的批评
+## When it applies / when it breaks
 
 
-## 我读过的用例
+## Common variants and the criticism of each
 
 
-## 我自己踩过的坑
+## Papers I've read that use it
+
+
+## Traps I hit myself
 

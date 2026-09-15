@@ -19,23 +19,25 @@ rating:
 added: {{DATE:YYYY-MM-DD}}
 ---
 
-> 原始条目与全部标注：[[@{{VALUE:citekey}}]]
+> Source item and all annotations: [[@{{VALUE:citekey}}]]
 
-## 一句话
+## What convinced me
 
 
-## 设计
-- 样本 / 期间：
-- 识别策略：
-- 关键变量：
-- 主结果（Table ?）：
+## What didn't
+<!-- one line per purple highlight -->
 
-## 我的评价
-- **说服我的**：
-- **没说服我的**：
-- **如果我来做**：
 
-## 关联
-- 方法：
-- 支持 / 反驳：
-- 流：
+## If I did this
+
+
+## Status log
+<!-- dated entries only when something changes:
+     2026-09-10 read as WP (draft 2024-01-30)
+     2026-09-10 retracted — not reproducible -->
+
+
+## Links
+- method: 
+- supports / contradicts: 
+- stream: 

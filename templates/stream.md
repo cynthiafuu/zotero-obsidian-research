@@ -1,17 +1,17 @@
-# {{VALUE:流的名字}}
+# {{VALUE:stream name}}
 
-## 这场对话在争什么
+## What this conversation is arguing about
 
 
-争议点：
+Open disputes:
 1. 
 2. 
 
-## 演化线
+## Line of development
 
 
-## 用到的工具
+## Tools it uses
 
 
-## 我认为的空白
+## Where I think the gap is
 
